@@ -100,18 +100,19 @@ body {
 </head>
 <body>
 
-<!-- SONS EMBUTIDOS -->
+<!-- SOM DAS TECLAS (embutido para funcionar em qualquer lugar) -->
 <audio id="somTecla" preload="auto">
 <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA/////w==" type="audio/wav">
 </audio>
 
+<!-- SOM DE CONFIRMA (embutido) -->
 <audio id="somConfirma" preload="auto">
 <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA//////8AAP//AAD///8A" type="audio/wav">
 </audio>
 
-<!-- NOVO SOM FINAL MAIS ALTO E PARECIDO COM URNA -->
+<!-- SOM FINAL REAL (fim.mp3) -->
 <audio id="somFim" preload="auto">
-<source src="data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU4AAAAA/////wAAAP///wD///8A////AP///wD///8A////AP///wAAAP8AAP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wAA////" type="audio/wav">
+<source src="fim.mp3" type="audio/mpeg">
 </audio>
 
 <!-- TELA FINAL -->
@@ -158,7 +159,7 @@ let numero = "";
 function playSom(id) {
     const a = document.getElementById(id);
     a.currentTime = 0;
-    a.play();
+    a.play().catch(() => {});
 }
 
 /* DIGITAR */
@@ -192,15 +193,21 @@ function confirma() {
     formData.append(entryID, voto);
     fetch(formsURL, { method: "POST", body: formData, mode: "no-cors" });
 
+    /* som confirma */
     playSom("somConfirma");
 
+    /* som final após 300ms */
     setTimeout(() => {
         playSom("somFim");
     }, 300);
 
+    /* Some a urna */
     document.getElementById("urna").style.display = "none";
+
+    /* Tela FIM */
     document.getElementById("fimTela").style.display = "flex";
 
+    /* Volta em 5 segundos */
     setTimeout(() => {
         document.getElementById("fimTela").style.display = "none";
         document.getElementById("urna").style.display = "block";
