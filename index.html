@@ -15,6 +15,19 @@ body {
     padding: 20px;
 }
 
+/* ===== MARCA D'ÁGUA ===== */
+.marca-esq {
+    position: fixed;
+    top: 50%;                      /* meio vertical */
+    transform: translateY(-50%);  /* centralizar */
+    font-size: 22px;              /* maior */
+    color: #00000055;             /* transparente */
+    font-weight: bold;
+    z-index: 99999;
+    pointer-events: none;         /* não atrapalha cliques */
+    left: 10px;                   /* posição à esquerda */
+}
+
 /* URNA */
 .urna {
     background: #eee;
@@ -100,17 +113,19 @@ body {
 </head>
 <body>
 
-<!-- SOM DAS TECLAS (embutido para funcionar em qualquer lugar) -->
+<!-- MARCA D'ÁGUA ÚNICA -->
+<div class="marca-esq">Direitos reservados ®João Miguel 2025</div>
+
+<!-- SONS EMBUTIDOS -->
 <audio id="somTecla" preload="auto">
 <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA/////w==" type="audio/wav">
 </audio>
 
-<!-- SOM DE CONFIRMA (embutido) -->
 <audio id="somConfirma" preload="auto">
 <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA//////8AAP//AAD///8A" type="audio/wav">
 </audio>
 
-<!-- SOM FINAL REAL (fim.mp3) -->
+<!-- SOM FINAL (fim.mp3 do GitHub Pages) -->
 <audio id="somFim" preload="auto">
 <source src="fim.mp3" type="audio/mpeg">
 </audio>
@@ -155,7 +170,7 @@ const entryID = "entry.1432218065";
 
 let numero = "";
 
-/* TOCAR SOM */
+/* SOM */
 function playSom(id) {
     const a = document.getElementById(id);
     a.currentTime = 0;
@@ -193,21 +208,16 @@ function confirma() {
     formData.append(entryID, voto);
     fetch(formsURL, { method: "POST", body: formData, mode: "no-cors" });
 
-    /* som confirma */
     playSom("somConfirma");
 
-    /* som final após 300ms */
     setTimeout(() => {
         playSom("somFim");
     }, 300);
 
-    /* Some a urna */
     document.getElementById("urna").style.display = "none";
 
-    /* Tela FIM */
     document.getElementById("fimTela").style.display = "flex";
 
-    /* Volta em 5 segundos */
     setTimeout(() => {
         document.getElementById("fimTela").style.display = "none";
         document.getElementById("urna").style.display = "block";
