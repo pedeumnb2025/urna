@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urna Eletrônica Escolar</title>
+
+<style>
+body {
+    margin: 0;
+    background: #d9d9d9;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* URNA */
+.urna {
+    background: #eee;
+    width: 600px;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px #0004;
+    z-index: 1;
+}
+
+.tela {
+    background: white;
+    height: 260px;
+    border-radius: 5px;
+    padding: 15px;
+    font-size: 20px;
+}
+
+/* TECLADO */
+.teclado {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.numeros {
+    width: 60%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.numeros button {
+    padding: 25px;
+    font-size: 28px;
+    border: none;
+    border-radius: 5px;
+    background: #444;
+    color: white;
+    cursor: pointer;
+}
+
+.acoes {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.acoes button {
+    padding: 25px;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.corrige { background: #F29300; }
+.confirma { background: #008000; }
+
+/* ======== TELA FINAL ======== */
+#fimTela {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #D9D9D9;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#fimTexto {
+    font-size: 200px;
+    font-family: Arial Black, sans-serif;
+    color: black;
+    opacity: 1;
+    letter-spacing: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- SONS EMBUTIDOS -->
+<audio id="somTecla" preload="auto">
+<source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA/////w==" type="audio/wav">
+</audio>
+
+<audio id="somConfirma" preload="auto">
+<source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQcAAAAA//////8AAP//AAD///8A" type="audio/wav">
+</audio>
+
+<!-- NOVO SOM FINAL MAIS ALTO E PARECIDO COM URNA -->
+<audio id="somFim" preload="auto">
+<source src="data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU4AAAAA/////wAAAP///wD///8A////AP///wD///8A////AP///wAAAP8AAP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wAA////" type="audio/wav">
+</audio>
+
+<!-- TELA FINAL -->
+<div id="fimTela">
+    <div id="fimTexto">FIM</div>
+</div>
+
+<!-- URNA -->
+<div class="urna" id="urna">
+    <div class="tela" id="tela">
+        DIGITE O NÚMERO DA CHAPA<br><br>
+        <span id="numero" style="font-size:40px; letter-spacing:10px;"></span>
+        <div id="info"></div>
+    </div>
+
+    <div class="teclado">
+        <div class="numeros">
+            <button onclick="digitar(1)">1</button>
+            <button onclick="digitar(2)">2</button>
+            <button onclick="digitar(3)">3</button>
+            <button onclick="digitar(4)">4</button>
+            <button onclick="digitar(5)">5</button>
+            <button onclick="digitar(6)">6</button>
+            <button onclick="digitar(7)">7</button>
+            <button onclick="digitar(8)">8</button>
+            <button onclick="digitar(9)">9</button>
+            <button onclick="digitar(0)">0</button>
+        </div>
+
+        <div class="acoes">
+            <button class="corrige" onclick="corrige()">CORRIGE</button>
+            <button class="confirma" onclick="confirma()">CONFIRMA</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const formsURL = "https://docs.google.com/forms/d/e/1FAIpQLSdLx2RPd4zBd_p9N5uqBr38mFN_4ofPe2qZNCAmhWQgLb3Whg/formResponse";
+const entryID = "entry.1432218065";
+
+let numero = "";
+
+/* TOCAR SOM */
+function playSom(id) {
+    const a = document.getElementById(id);
+    a.currentTime = 0;
+    a.play();
+}
+
+/* DIGITAR */
+function digitar(n) {
+    if (numero.length < 1) {
+        numero = n.toString();
+        atualizar();
+        playSom("somTecla");
+    }
+}
+
+/* ATUALIZAR */
+function atualizar() {
+    document.getElementById("numero").innerText = numero;
+    document.getElementById("info").innerHTML =
+        (numero === "1") ? "<b>CHAPA 1</b>" : "<b>NULO</b>";
+}
+
+/* CORRIGE */
+function corrige() {
+    numero = "";
+    document.getElementById("numero").innerText = "";
+    document.getElementById("info").innerHTML = "";
+}
+
+/* CONFIRMA */
+function confirma() {
+    let voto = (numero === "1") ? "1" : "0";
+
+    let formData = new FormData();
+    formData.append(entryID, voto);
+    fetch(formsURL, { method: "POST", body: formData, mode: "no-cors" });
+
+    playSom("somConfirma");
+
+    setTimeout(() => {
+        playSom("somFim");
+    }, 300);
+
+    document.getElementById("urna").style.display = "none";
+    document.getElementById("fimTela").style.display = "flex";
+
+    setTimeout(() => {
+        document.getElementById("fimTela").style.display = "none";
+        document.getElementById("urna").style.display = "block";
+        corrige();
+    }, 5000);
+}
+</script>
+
+</body>
+</html>
